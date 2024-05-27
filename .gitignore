@@ -1,0 +1,5 @@
+# virtual environment
+.venv/**
+
+# compilation results
+**/__pycache__/**
