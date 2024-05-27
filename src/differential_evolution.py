@@ -1,14 +1,12 @@
-from typing import Callable
-
 import numpy as np
+
+from .utility import EvaluationFunction
 
 
 class DifferentialEvolution:
     def __init__(
         self,
-        evaluation_function: Callable[
-            [np.ndarray[np.floating]], np.ndarray[np.floating]
-        ],
+        evaluation_function: EvaluationFunction,
         mutation_step: float = 0.5,
         crossover_rate: float = 0.9,
     ) -> None:
