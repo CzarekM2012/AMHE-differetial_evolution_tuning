@@ -1,5 +1,6 @@
 import numpy as np
 
+from .mutation_step_tuners import ConstantStep, StepTuner
 from .utility import EvaluationFunction
 
 
@@ -7,26 +8,33 @@ class DifferentialEvolution:
     def __init__(
         self,
         evaluation_function: EvaluationFunction,
-        mutation_step: float = 0.5,
+        initial_mutation_step: float = 0.5,
         crossover_rate: float = 0.9,
+        mutation_step_tuner: StepTuner = ConstantStep(),
     ) -> None:
         self.evaluation_function = evaluation_function
-        self.mutation_step = mutation_step
         self.crossover_rate = crossover_rate
+        self.initial_mutation_step = initial_mutation_step
+        self.mutation_step_tuner = mutation_step_tuner
 
     def evolve(self, initial_population: np.ndarray, number_of_generations: int = 20):
         population = initial_population.copy()
+        mutation_step = self.initial_mutation_step
         for _ in range(number_of_generations):
-            population = self._process_generation(population)
+            new_population = self._process_generation(population, mutation_step)
+            mutation_step = self.mutation_step_tuner.adapt_step(
+                mutation_step, population, new_population, self.evaluation_function
+            )
+            population = new_population
         return population
 
-    def _process_generation(self, population: np.ndarray):
-        mutants = self._mutate(population)
+    def _process_generation(self, population: np.ndarray, mutation_step: float):
+        mutants = self._mutate(population, mutation_step)
         candidates = self._crossover(population, mutants)
         new_population = self._succession(population, candidates)
         return new_population
 
-    def _mutate(self, population: np.ndarray):
+    def _mutate(self, population: np.ndarray, mutation_step: float):
         choosen_indices = np.random.choice(population.shape[0], population.shape[0])
         choosen = population[choosen_indices]
         points = np.array(
@@ -36,7 +44,7 @@ class DifferentialEvolution:
             ]
         )
         substracted = points[:, 0, :] - points[:, 1, :]
-        mutants = choosen + self.mutation_step * substracted
+        mutants = choosen + mutation_step * substracted
         return mutants
 
     def _crossover(self, population: np.ndarray, mutants: np.ndarray):
