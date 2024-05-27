@@ -1,0 +1,2 @@
+numpy==1.26.4
+cec2017 @ git+https://github.com/tilleyd/cec2017-py@master
