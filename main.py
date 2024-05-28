@@ -1,6 +1,7 @@
 import numpy as np
 
 from src.differential_evolution import DifferentialEvolution
+from src.mutation_step_tuners import MSRTuner, PSRTuner
 
 if __name__ == "__main__":
 
@@ -23,4 +24,14 @@ if __name__ == "__main__":
     )
 
     model = DifferentialEvolution(evaluation_function=evaluation)
+    print(model.evolve(initial_population))
+
+    model = DifferentialEvolution(
+        evaluation_function=evaluation, mutation_step_tuner=MSRTuner()
+    )
+    print(model.evolve(initial_population))
+
+    model = DifferentialEvolution(
+        evaluation_function=evaluation, mutation_step_tuner=PSRTuner()
+    )
     print(model.evolve(initial_population))

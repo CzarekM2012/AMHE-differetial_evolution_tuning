@@ -19,6 +19,7 @@ class DifferentialEvolution:
 
     def evolve(self, initial_population: np.ndarray, number_of_generations: int = 20):
         population = initial_population.copy()
+        self.mutation_step_tuner.reset()
         mutation_step = self.initial_mutation_step
         for _ in range(number_of_generations):
             new_population = self._process_generation(population, mutation_step)
