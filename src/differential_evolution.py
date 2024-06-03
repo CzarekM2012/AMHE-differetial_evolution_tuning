@@ -11,11 +11,15 @@ class DifferentialEvolution:
         initial_mutation_step: float = 0.5,
         crossover_rate: float = 0.9,
         mutation_step_tuner: StepTuner = ConstantStep(),
+        lower_bound: float = -100.,
+        upper_bound: float = 100.
     ) -> None:
         self.evaluation_function = evaluation_function
         self.crossover_rate = crossover_rate
         self.initial_mutation_step = initial_mutation_step
         self.mutation_step_tuner = mutation_step_tuner
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
 
     def evolve(self, initial_population: np.ndarray, number_of_generations: int = 20):
         population = initial_population.copy()
@@ -65,6 +69,8 @@ class DifferentialEvolution:
         return candidates
 
     def _succession(self, population: np.ndarray, candidates: np.ndarray):
+        if self.lower_bound is not None or self.upper_bound is not None:
+            np.clip(candidates, self.lower_bound, self.upper_bound)
         population_evaluations = self.evaluation_function(population)
         candidates_evaluations = self.evaluation_function(candidates)
         mask = candidates_evaluations <= population_evaluations
