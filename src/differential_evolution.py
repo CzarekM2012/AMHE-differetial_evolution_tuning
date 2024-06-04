@@ -21,7 +21,8 @@ class DifferentialEvolution:
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def evolve(self, initial_population: np.ndarray, number_of_generations: int = 20):
+    def evolve(self, initial_population: np.ndarray, number_of_generations: int = 20, stats: bool = False):
+        stats_dict = {"bests": [], "means": [], "stds": []}
         population = initial_population.copy()
         self.mutation_step_tuner.reset()
         mutation_step = self.initial_mutation_step
@@ -31,7 +32,9 @@ class DifferentialEvolution:
                 mutation_step, population, new_population, self.evaluation_function
             )
             population = new_population
-        return population
+            if stats:
+                self._gather_stats(self.evaluation_function(population), stats_dict)
+        return population, stats_dict
 
     def _process_generation(self, population: np.ndarray, mutation_step: float):
         mutants = self._mutate(population, mutation_step)
@@ -76,3 +79,8 @@ class DifferentialEvolution:
         mask = candidates_evaluations <= population_evaluations
         new_population = np.where(mask[:, None], candidates, population)
         return new_population
+
+    def _gather_stats(self, evaluated_population: np.ndarray, stats_dict: dict):
+        stats_dict["bests"].append(np.nanmin(evaluated_population))
+        stats_dict["means"].append(np.nanmean(evaluated_population))
+        stats_dict["stds"].append(np.nanstd(evaluated_population))
