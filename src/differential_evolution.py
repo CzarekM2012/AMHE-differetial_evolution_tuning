@@ -11,8 +11,8 @@ class DifferentialEvolution:
         initial_mutation_step: float = 0.5,
         crossover_rate: float = 0.9,
         mutation_step_tuner: StepTuner = ConstantStep(),
-        lower_bound: float = -100.,
-        upper_bound: float = 100.
+        lower_bound: float = -100.0,
+        upper_bound: float = 100.0,
     ) -> None:
         self.evaluation_function = evaluation_function
         self.crossover_rate = crossover_rate
@@ -21,7 +21,12 @@ class DifferentialEvolution:
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def evolve(self, initial_population: np.ndarray, number_of_generations: int = 20, stats: bool = False):
+    def evolve(
+        self,
+        initial_population: np.ndarray,
+        number_of_generations: int = 20,
+        stats: bool = False,
+    ):
         stats_dict = {"bests": [], "means": [], "stds": []}
         population = initial_population.copy()
         self.mutation_step_tuner.reset()
