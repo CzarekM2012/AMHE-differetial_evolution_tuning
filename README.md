@@ -1,4 +1,4 @@
-# AMHE-differential_evoltion_tunig
+# AMHE-differential_evolution_tuning
 
 This project examines methods of mutation range tuning in basic differential evolution algorithm (rand/1/bin).
 
