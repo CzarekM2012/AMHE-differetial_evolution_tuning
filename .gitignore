@@ -3,3 +3,7 @@
 
 # compilation results
 **/__pycache__/**
+
+# results
+results/**
+!.gitkeep

@@ -11,13 +11,23 @@ class DifferentialEvolution:
         initial_mutation_step: float = 0.5,
         crossover_rate: float = 0.9,
         mutation_step_tuner: StepTuner = ConstantStep(),
+        lower_bound: float = -100.0,
+        upper_bound: float = 100.0,
     ) -> None:
         self.evaluation_function = evaluation_function
         self.crossover_rate = crossover_rate
         self.initial_mutation_step = initial_mutation_step
         self.mutation_step_tuner = mutation_step_tuner
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
 
-    def evolve(self, initial_population: np.ndarray, number_of_generations: int = 20):
+    def evolve(
+        self,
+        initial_population: np.ndarray,
+        number_of_generations: int = 20,
+        stats: bool = False,
+    ):
+        stats_dict = {"bests": [], "means": [], "stds": []}
         population = initial_population.copy()
         self.mutation_step_tuner.reset()
         mutation_step = self.initial_mutation_step
@@ -27,7 +37,9 @@ class DifferentialEvolution:
                 mutation_step, population, new_population, self.evaluation_function
             )
             population = new_population
-        return population
+            if stats:
+                self._gather_stats(self.evaluation_function(population), stats_dict)
+        return population, stats_dict
 
     def _process_generation(self, population: np.ndarray, mutation_step: float):
         mutants = self._mutate(population, mutation_step)
@@ -65,8 +77,15 @@ class DifferentialEvolution:
         return candidates
 
     def _succession(self, population: np.ndarray, candidates: np.ndarray):
+        if self.lower_bound is not None or self.upper_bound is not None:
+            np.clip(candidates, self.lower_bound, self.upper_bound)
         population_evaluations = self.evaluation_function(population)
         candidates_evaluations = self.evaluation_function(candidates)
         mask = candidates_evaluations <= population_evaluations
         new_population = np.where(mask[:, None], candidates, population)
         return new_population
+
+    def _gather_stats(self, evaluated_population: np.ndarray, stats_dict: dict):
+        stats_dict["bests"].append(np.nanmin(evaluated_population))
+        stats_dict["means"].append(np.nanmean(evaluated_population))
+        stats_dict["stds"].append(np.nanstd(evaluated_population))
